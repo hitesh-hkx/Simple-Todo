@@ -6,8 +6,11 @@ from django.contrib.auth.models import User
 from .serializers import TodoSerializer, UserRegSerializer
 from django.views.decorators.http import require_POST
 
-# Create your views here.
+
 def index(request):
+'''
+    Method that handles the UI, Form and Displays the Todo Tasks.
+'''
     todo = Todo.objects.all()
     form = TodoForm()
 
@@ -18,6 +21,7 @@ def index(request):
     return render(request,'index.html', args)
 
 def complete(request, todo_id):
+
     todo = Todo.objects.get(pk=todo_id)
     todo.complete = True
     todo.save()
@@ -26,18 +30,16 @@ def complete(request, todo_id):
 
 @require_POST
 def add(request):
-    if request.method == 'POST':
-        form = TodoForm(request.POST)
 
-        if form.is_valid():
-            todo = Todo(text=request.POST['text'])
-            todo.save()
-        return redirect('/')
+    form = TodoForm(request.POST or None)
+
+    if form.is_valid():
+        todo = Todo(text=request.POST['text'])
+        todo.save()
+    return redirect('/')
 
 def delete_completed(request):
     Todo.objects.filter(complete__exact=True).delete()
-
-
     return redirect('/')
 
 def del_all(request):
@@ -47,10 +49,8 @@ def del_all(request):
 
 
 class TodoViewSets(viewsets.ModelViewSet):
-
+'''
+    Class that handles all the Api request related to Todo Model.
+'''
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
-
-class UserRegViewSets(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserRegSerializer
